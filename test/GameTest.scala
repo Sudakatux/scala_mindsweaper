@@ -78,9 +78,23 @@ class GameTest extends PlaySpec{
     val result = Game.initBoard(3,4,bombCount)
     result.size mustBe rowSize*colSize
     result.count(_ match {
-      case Bomb(_,_,_,_,_,_) => true
+      case Bomb(_,_,_) => true
       case _ => false
     }) mustBe bombCount
+  }
+  "flags a cell in the Game" in {
+    val rowSize = 3
+    val colSize = 4
+    val bombCount = 1
+
+    Game(rowSize,colSize,bombCount).flagCell(0,0).currentBoard.count(cell=>cell.isFlagged) mustBe 1
+  }
+  "open a cell in the game" in {
+    val rowSize = 3
+    val colSize = 4
+    val bombCount = 1
+
+    println(Game(rowSize,colSize,bombCount).openCell(0,0).currentBoard)
   }
 }
 }
