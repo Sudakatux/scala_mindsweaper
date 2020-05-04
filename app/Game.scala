@@ -1,5 +1,10 @@
 import scala.annotation.tailrec
 import scala.util.Random
+abstract class Cell(col: Int, row: Int, isFlagged: Boolean, isOpen: Boolean, neighbors: Set[Int], bombsTouching: Int)
+
+case class EmptyCell(col: Int, row: Int, isFlagged: Boolean, isOpen: Boolean, neighbors: Set[Int], bombsTouching: Int) extends Cell(col,row,isFlagged,isOpen,neighbors,bombsTouching);
+case class Bomb(col: Int, row: Int, isFlagged: Boolean, isOpen: Boolean, neighbors: Set[Int], bombsTouching: Int) extends Cell(col,row,isFlagged,isOpen,neighbors,bombsTouching);
+case class BombAdjacent(col: Int, row: Int, isFlagged: Boolean, isOpen: Boolean, neighbors: Set[Int], bombsTouching: Int) extends Cell(col,row,isFlagged,isOpen,neighbors,bombsTouching);
 
 object Game {
   type Position = (Int, Int) // row, column
@@ -36,8 +41,26 @@ object Game {
     def existsInBoard: (Int) => Boolean = (idx:Int)=> (idx < boardSize && idx >=0 )
 
     val candidatesWithoutSelf = possibleCandidates.filter(_!=position).filter((pos)=> (pos._1 >=0 && pos._2 >=0))
-    println(s"Candidates without self ${candidatesWithoutSelf}")
     candidatesWithoutSelf.map(index(rowCount,_)).filter(existsInBoard)
+  }
+
+  def bombAdjacentByBombsNotBombs(boardSize:Int, rowCount:Int, bombIdx:Set[Int]):Map[Int,Set[Int]] = {
+    val bombAdjacentsByBomb:Map[Int,Set[Int]] = bombIdx
+      .map(bIdx=>Tuple2(bIdx,adjacentsForPosition(boardSize,rowCount,position(rowCount,bIdx))))
+      .toMap
+
+    def notABomb = (adjacentIdx:Int) => !bombIdx.contains(adjacentIdx)
+
+    bombAdjacentsByBomb.mapValues(_.filter(notABomb))
+
+  }
+
+  def initBoard(rowCount:Int, colCount:Int, bombCount:Int):List[Cell]={
+    val boardSize = rowCount * colCount
+    val bombIdxPositions = randomBombPositionsInGrid(bombCount,boardSize)
+    val bombAdjacentsByBomb : Map[Int,Set[Int]] = bombAdjacentByBombsNotBombs(boardSize,rowCount,bombIdxPositions)
+    val adjacentIndexes = bombAdjacentsByBomb.values.flatten
+
   }
 
 

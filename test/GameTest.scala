@@ -7,6 +7,7 @@ class GameTest extends PlaySpec{
     1 4 7 10
     2 5 8 11
     */
+   val maxPossibleAdjacents = 8
   "compute the correct position given an index in the column stack" in {
     val result = Game.position(3,3)
     result mustBe (0,1)
@@ -34,11 +35,12 @@ class GameTest extends PlaySpec{
     result.size mustBe bombCount // Returns the appropiate size
     result.filter(p=> p < boardSize && p >= 0 ).size mustBe bombCount //  makes sense
   }
+
   "returns adjacent positions" in {
     val rowSize = 3
     val colSize = 4
     val boardSize = rowSize*colSize
-    val maxPossibleAdjacents = 8
+
 
     val positionOfAMiddleNumber = (1,1)
     val indexOfMiddleNumber = 4
@@ -54,7 +56,20 @@ class GameTest extends PlaySpec{
     result1.contains(indexOfVertex) mustBe false // Should not show itself as a position
     result1.filter(rIdx=>rIdx >=0 && rIdx<boardSize).size mustBe vertexMaxAdjacents
     result1.equals(Set(3,4,1)) mustBe true
+  }
+  "returns bomb adjacents for bombs that are not bombs" in {
+    val rowSize = 3
+    val colSize = 4
+    val boardSize = rowSize*colSize
 
+    val fakeBomb = Set(4)
+    val result = Game.bombAdjacentByBombsNotBombs(boardSize,rowSize,fakeBomb)
+    println(s" Result is ${result}")
+    result.values.flatten.size mustBe maxPossibleAdjacents
+
+    val fakeBombs = Set(4,7)
+    val result1 = Game.bombAdjacentByBombsNotBombs(boardSize,rowSize,fakeBombs)
+    result1.get(4).get.size mustBe (maxPossibleAdjacents-1) // Has a bomb next to it should filter that bomb
   }
 }
 }
