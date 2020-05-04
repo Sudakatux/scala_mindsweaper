@@ -1,10 +1,10 @@
 import scala.annotation.tailrec
 import scala.util.Random
-abstract class Cell(col: Int, row: Int, isFlagged: Boolean, isOpen: Boolean, neighbors: Set[Int], bombsTouching: Int)
+abstract class Cell(row: Int, col: Int, isFlagged: Boolean, isOpen: Boolean, cellsArround: Set[Int], bombsTouching: Int)
 
-case class EmptyCell(col: Int, row: Int, isFlagged: Boolean, isOpen: Boolean, neighbors: Set[Int], bombsTouching: Int) extends Cell(col,row,isFlagged,isOpen,neighbors,bombsTouching);
-case class Bomb(col: Int, row: Int, isFlagged: Boolean, isOpen: Boolean, neighbors: Set[Int], bombsTouching: Int) extends Cell(col,row,isFlagged,isOpen,neighbors,bombsTouching);
-case class BombAdjacent(col: Int, row: Int, isFlagged: Boolean, isOpen: Boolean, neighbors: Set[Int], bombsTouching: Int) extends Cell(col,row,isFlagged,isOpen,neighbors,bombsTouching);
+case class EmptyCell(row: Int, col: Int, isFlagged: Boolean, isOpen: Boolean, cellsArround: Set[Int], bombsTouching: Int) extends Cell(row,col,isFlagged,isOpen,cellsArround,bombsTouching);
+case class Bomb(row: Int, col: Int, isFlagged: Boolean, isOpen: Boolean, cellsArround: Set[Int], bombsTouching: Int) extends Cell(row,col,isFlagged,isOpen,cellsArround,bombsTouching);
+case class BombAdjacent(row: Int, col: Int, isFlagged: Boolean, isOpen: Boolean, cellsArround: Set[Int], bombsTouching: Int) extends Cell(row,col,isFlagged,isOpen,cellsArround,bombsTouching);
 
 object Game {
   type Position = (Int, Int) // row, column
@@ -59,7 +59,26 @@ object Game {
     val boardSize = rowCount * colCount
     val bombIdxPositions = randomBombPositionsInGrid(bombCount,boardSize)
     val bombAdjacentsByBomb : Map[Int,Set[Int]] = bombAdjacentByBombsNotBombs(boardSize,rowCount,bombIdxPositions)
-    val adjacentIndexes = bombAdjacentsByBomb.values.flatten
+    val adjacentIndexes = bombAdjacentsByBomb.values.toList.flatten
+    (0 until boardSize).map(boardIdx=>{
+      val idxPosition = position(rowCount,boardIdx)
+      val cellsArround = adjacentsForPosition(boardSize,rowCount,idxPosition)
+      val (row,col) = idxPosition
+
+      if(bombIdxPositions.contains(boardIdx)) { // If index is due to be a bomb
+        Bomb(
+          row,
+          col,
+          false,
+          false,
+          cellsArround,
+          0)
+      } else if (adjacentIndexes.contains(boardIdx)){ // if its next to a Bomb
+        BombAdjacent(row,col,false,false,cellsArround,adjacentIndexes.count(_ == boardIdx))
+      } else {
+        EmptyCell(row,col,false,false,cellsArround,0)
+      }
+    }).toList
 
   }
 
