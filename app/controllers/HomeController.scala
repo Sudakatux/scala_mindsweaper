@@ -22,6 +22,10 @@ class HomeController @Inject()(cc: ControllerComponents, state: ApplicationState
     )
   }
 
+  def games() = Action(parse.json) {
+    val games = state.games.keys.toList
+    Ok(Json.obj("games"->games))
+  }
 
   def gameByName(name: String) = Action(parse.json) {
     val maybeGame = state.games.get(name)

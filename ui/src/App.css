@@ -22,6 +22,31 @@
 .App-link {
   color: #61dafb;
 }
+.game-row {
+  display: flex;
+  justify-content: 'row';
+}
+
+.cell {
+  border:1px solid;
+  width:3rem;
+  height:3rem;
+
+}
+
+.empty-cell{
+  background-color: #282c34;
+}
+.adjacent-cell{
+  background-color:white;
+}
+.unknown-cell {
+  background-color:grey;
+}
+.bomb-cell {
+  background-color:red;
+}
+
 
 @keyframes App-logo-spin {
   from {

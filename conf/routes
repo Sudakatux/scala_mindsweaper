@@ -8,8 +8,9 @@ GET     /                           controllers.FrontendController.index()
 # An example route (Prefix all API routes with apiPrefix defined in application.conf)
 +nocsrf
 POST    /api/game                  controllers.HomeController.createGame()
-GET     /api/:name                 controllers.HomeController.gameByName(name)
-GET     /api/:name/open            controllers.HomeController.openCel(name, row:Int ?= 0, col:Int ?= 0)
+GET     /api/game                  controllers.HomeController.games()
+GET     /api/game/:name            controllers.HomeController.gameByName(name)
+GET     /api/game/:name/open       controllers.HomeController.openCel(name, row:Int ?= 0, col:Int ?= 0)
 
 # Serve static assets under public directory
 GET     /*file                      controllers.FrontendController.assetOrDefault(file)
