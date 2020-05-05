@@ -1,80 +1,88 @@
+package services
+
 import scala.annotation.tailrec
 import scala.util.Random
 
-abstract class Cell(_isFlagged: Boolean, _isOpen: Boolean, cellsArround: Set[Int]){
-  val isFlagged= _isFlagged
+abstract class Cell(_isFlagged: Boolean, _isOpen: Boolean, cellsArround: Set[Int]) {
+  val isFlagged = _isFlagged
   val isOpen = _isOpen
 
   def open(): Cell
+
   def toggleFlag(): Cell
 
 }
 
-case class EmptyCell( _isFlagged: Boolean, _isOpen: Boolean, cellsArround: Set[Int]) extends Cell(_isFlagged, _isOpen, cellsArround){
-  override def open(): Cell =  EmptyCell( _isFlagged,true,cellsArround)
-  override def toggleFlag(): Cell =  EmptyCell( !_isFlagged,_isOpen,cellsArround)
+case class EmptyCell(_isFlagged: Boolean, _isOpen: Boolean, cellsArround: Set[Int]) extends Cell(_isFlagged, _isOpen, cellsArround) {
+  override def open(): Cell = EmptyCell(_isFlagged, true, cellsArround)
+
+  override def toggleFlag(): Cell = EmptyCell(!_isFlagged, _isOpen, cellsArround)
 }
 
-case class Bomb( _isFlagged: Boolean, _isOpen: Boolean, cellsArround: Set[Int]) extends Cell(_isFlagged, _isOpen, cellsArround){
-  override def open(): Cell = Bomb(_isFlagged,true,cellsArround)
-  override def toggleFlag(): Cell = Bomb(!_isFlagged,_isOpen,cellsArround)
+case class Bomb(_isFlagged: Boolean, _isOpen: Boolean, cellsArround: Set[Int]) extends Cell(_isFlagged, _isOpen, cellsArround) {
+  override def open(): Cell = Bomb(_isFlagged, true, cellsArround)
+
+  override def toggleFlag(): Cell = Bomb(!_isFlagged, _isOpen, cellsArround)
 }
 
-case class BombAdjacent(_isFlagged: Boolean, _isOpen: Boolean, cellsArround: Set[Int], bombsTouching: Int) extends Cell(_isFlagged, _isOpen, cellsArround){
-  override def open(): Cell = BombAdjacent(_isFlagged,true,cellsArround,bombsTouching)
-  override def toggleFlag(): Cell = BombAdjacent(!_isFlagged,_isOpen,cellsArround,bombsTouching)
+case class BombAdjacent(_isFlagged: Boolean, _isOpen: Boolean, cellsArround: Set[Int], bombsTouching: Int) extends Cell(_isFlagged, _isOpen, cellsArround) {
+  override def open(): Cell = BombAdjacent(_isFlagged, true, cellsArround, bombsTouching)
+
+  override def toggleFlag(): Cell = BombAdjacent(!_isFlagged, _isOpen, cellsArround, bombsTouching)
 }
 
-class Game(rowCount:Int,colCount:Int,board: List[Cell]) {
+class Game(rowCount: Int, colCount: Int, board: List[Cell]) {
   val currentBoard = board
-  def flagCell(row:Int,col:Int): Game = {
-    val idx = Game.index(rowCount,(row,col))
+  val rows:Int = rowCount
+  val columns:Int = colCount
+
+  def flagCell(row: Int, col: Int): Game = {
+    val idx = Game.index(rowCount, (row, col))
     val current = board(idx)
-    val updatedBoard:List[Cell] = board.patch(idx,Seq(current.toggleFlag()),1)
-    new Game(rowCount,colCount, updatedBoard)
+    val updatedBoard: List[Cell] = board.patch(idx, Seq(current.toggleFlag()), 1)
+    new Game(rowCount, colCount, updatedBoard)
   }
 
-  def openCell(row:Int,col:Int):Game = {
-    val idx = Game.index(rowCount,(row,col))
+  def openCell(row: Int, col: Int): Game = {
+    val idx = Game.index(rowCount, (row, col))
     val current = board(idx)
     val boardAfterOpen: List[Cell] = current match {
-      case Bomb(_,_,_) => board.map(cell=>cell.open())
-      case EmptyCell(_,_,cellsArround) => openEmptyCell(cellsArround,Set(),board.patch(idx,Seq(current.open()),1))
-      case _ => board.patch(idx,Seq(current.open()),1)
+      case Bomb(_, _, _) => board.map(cell => cell.open())
+      case EmptyCell(_, _, cellsArround) => openEmptyCell(cellsArround, Set(), board.patch(idx, Seq(current.open()), 1))
+      case _ => board.patch(idx, Seq(current.open()), 1)
     }
-    new Game(rowCount,colCount, boardAfterOpen)
+    new Game(rowCount, colCount, boardAfterOpen)
   }
 
-  def isLoose:Boolean = {
-    board.filter(cell=>cell.isOpen).size == board.size
+  def isLoose: Boolean = {
+    board.filter(cell => cell.isOpen).size == board.size
   }
 
-  def isWin:Boolean = {
+  def isWin: Boolean = {
     board.filter(cell => cell match {
-      case Bomb(_,_isOpen,_)=> _isOpen
-      case _=> false
+      case Bomb(_, _isOpen, _) => _isOpen
+      case _ => false
     }).isEmpty
   }
 
-  private def openEmptyCell(cellsToOpen:Set[Int], openedCells:Set[Int],board:List[Cell]):List[Cell] ={
+  private def openEmptyCell(cellsToOpen: Set[Int], openedCells: Set[Int], board: List[Cell]): List[Cell] = {
     val unverifiedRest = cellsToOpen -- openedCells
     if (unverifiedRest.isEmpty) return board
     val currentIdx = unverifiedRest.head
     val current = board(currentIdx)
 
     current match {
-      case EmptyCell(_,_,cellsArround) => openEmptyCell(cellsArround ++ unverifiedRest.tail,openedCells+currentIdx,board.patch(currentIdx,Seq(current.open()),1))
-      case BombAdjacent(_,_,_,_) =>  openEmptyCell(unverifiedRest.tail,openedCells+currentIdx,board.patch(currentIdx,Seq(current.open()),1))
-      case _ => openEmptyCell(unverifiedRest.tail,openedCells,board)
+      case EmptyCell(_, _, cellsArround) => openEmptyCell(cellsArround ++ unverifiedRest.tail, openedCells + currentIdx, board.patch(currentIdx, Seq(current.open()), 1))
+      case BombAdjacent(_, _, _, _) => openEmptyCell(unverifiedRest.tail, openedCells + currentIdx, board.patch(currentIdx, Seq(current.open()), 1))
+      case _ => openEmptyCell(unverifiedRest.tail, openedCells, board)
     }
   }
-
 
 
 }
 
 object Game {
-  def apply(rowCount:Int,colCount:Int,bombAmount:Int): Game = new Game(rowCount,colCount,initBoard(rowCount,colCount,bombAmount))
+  def apply(rowCount: Int, colCount: Int, bombAmount: Int): Game = new Game(rowCount, colCount, initBoard(rowCount, colCount, bombAmount))
 
   type Position = (Int, Int) // row, column
 
@@ -89,7 +97,7 @@ object Game {
     col * rowCount + row
   }
 
-  def randomBombPositionsInGrid(bombCount: Int, boardSize: Int): Set[Int] = { // Bomb position
+  def randomBombPositionsInGrid(bombCount: Int, boardSize: Int): Set[Int] = { // services.Bomb position
     @tailrec
     def placeBombs(placedBombs: Set[Int]): Set[Int] = {
       if (placedBombs.size == bombCount) {
@@ -140,8 +148,8 @@ object Game {
           false,
           false,
           cellsArround)
-      } else if (adjacentIndexes.contains(boardIdx)) { // if its next to a Bomb
-        BombAdjacent( false, false, cellsArround, adjacentIndexes.count(_ == boardIdx))
+      } else if (adjacentIndexes.contains(boardIdx)) { // if its next to a services.Bomb
+        BombAdjacent(false, false, cellsArround, adjacentIndexes.count(_ == boardIdx))
       } else {
         EmptyCell(false, false, cellsArround)
       }

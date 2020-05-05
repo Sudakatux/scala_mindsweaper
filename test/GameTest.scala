@@ -1,7 +1,9 @@
+package services
+
 import org.scalatestplus.play.PlaySpec
 
 class GameTest extends PlaySpec{
-"Game " should {
+"services.Game " should {
     /*
     0 3 6 9
     1 4 7 10
@@ -82,7 +84,7 @@ class GameTest extends PlaySpec{
       case _ => false
     }) mustBe bombCount
   }
-  "flags a cell in the Game" in {
+  "flags a cell in the services.Game" in {
     val rowSize = 3
     val colSize = 4
     val bombCount = 1

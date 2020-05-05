@@ -1,9 +1,12 @@
 package controllers
 
+import models.{GameBoard, GameCreation}
 import org.scalatestplus.play._
 import org.scalatestplus.play.guice._
+import play.api.libs.json.Json
 import play.api.test._
 import play.api.test.Helpers._
+import services.{ApplicationState, Game}
 
 /**
   * Add your spec here.
@@ -13,36 +16,55 @@ import play.api.test.Helpers._
   */
 class HomeControllerSpec extends PlaySpec with GuiceOneAppPerTest with Injecting {
 
-  "HomeController GET" should {
+  "HomeController" should {
 
-    "render the appSummary resource from a new instance of controller" in {
-      val controller = new HomeController(stubControllerComponents())
-      val home = controller.appSummary().apply(FakeRequest(GET, "/summary"))
+    "Be able to create a game given a configuration. and get the configuration back" in {
+      val controller = new HomeController(stubControllerComponents(), new ApplicationState())
+      val mockGameCreation = GameCreation("someName",4,12,3)
+      val jsonRequest  = Json.toJson(mockGameCreation)
+      val home = FakeRequest(POST, "/api/game").withJsonBody(jsonRequest)
+      val result = route(app,home).get
+
+      status(result) mustBe OK
+      contentType(result) mustBe Some("application/json")
+      val resultJson = contentAsJson(result)
+      resultJson mustBe jsonRequest
+    }
+    "Be able to return a game by name" in {
+      val appState = new ApplicationState()
+      val gameName = "name"
+      appState.updateGame(gameName,Game(1,2,1))
+      val controller = new HomeController(stubControllerComponents(), appState)
+      val home = controller.gameByName(gameName).apply(FakeRequest(GET,gameName))
 
       status(home) mustBe OK
       contentType(home) mustBe Some("application/json")
       val resultJson = contentAsJson(home)
-      resultJson.toString() mustBe """{"content":"Scala Play React Seed!"}"""
+      resultJson.toString() mustBe """{"board":[{"cellType":"NotVisible","display":"NotVisible"},{"cellType":"NotVisible","display":"NotVisible"}],"gameConfiguration":{"gameName":"name","rowCount":1,"colCount":2,"bombAmount":0}}"""
     }
-
-    "render the appSummary resource from the application" in {
-      val controller = inject[HomeController]
-      val home = controller.appSummary().apply(FakeRequest(GET, "/summary"))
+    "Be able to open a cell in the game" in {
+      val appState = new ApplicationState()
+      val gameName = "name"
+      appState.updateGame(gameName,Game(1,2,1))
+      val controller = new HomeController(stubControllerComponents(), appState)
+      val home = controller.openCel(gameName,0,0).apply(FakeRequest(GET,gameName))
 
       status(home) mustBe OK
       contentType(home) mustBe Some("application/json")
       val resultJson = contentAsJson(home)
-      resultJson.toString() mustBe """{"content":"Scala Play React Seed!"}"""
-    }
+      val board = resultJson.as[GameBoard]
+      board.board.count(cell=>cell.cellType!="NotVisible") >= 1 mustBe(true)
 
-    "render the appSummary resource from the router" in {
-      val request = FakeRequest(GET, "/api/summary")
-      val home = route(app, request).get
-
-      status(home) mustBe OK
-      contentType(home) mustBe Some("application/json")
-      val resultJson = contentAsJson(home)
-      resultJson.toString() mustBe """{"content":"Scala Play React Seed!"}"""
     }
+//
+//    "render the appSummary resource from the router" in {
+//      val request = FakeRequest(GET, "/api/summary")
+//      val home = route(app, request).get
+//
+//      status(home) mustBe OK
+//      contentType(home) mustBe Some("application/json")
+//      val resultJson = contentAsJson(home)
+//      resultJson.toString() mustBe """{"content":"Scala Play React Seed!"}"""
+//    }
   }
 }
