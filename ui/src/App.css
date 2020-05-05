@@ -22,10 +22,9 @@
 .App-link {
   color: #61dafb;
 }
-.game-row {
+.game-container {
   display: flex;
-  justify-content: 'row';
-}
+} 
 
 .cell {
   border:1px solid;

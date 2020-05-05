@@ -17,7 +17,8 @@ object VisibleCell {
   implicit val visibleCellImplicitWrites = Json.writes[VisibleCell]
 }
 
-case class GameBoard(board:List[VisibleCell],gameConfiguration:GameCreation)
+
+case class GameBoard(name:String, board:List[VisibleCell],rowCount:Int, gameState:String)
 object GameBoard {
   implicit val gameBoardImplicitReads = Json.reads[GameBoard]
   implicit val gameBoardImplicitWrites = Json.writes[GameBoard]
@@ -27,12 +28,12 @@ object GameBoard {
   }
 
   def gameToGameBoard(name:String,game:Game):GameBoard =
-    GameBoard(game.currentBoard.map(_ match {
+    GameBoard(name, game.currentBoard.map(_ match {
       case Bomb(_isFlagged, _isOpen, _) => VisibleCell(cellType = maybeVisible(_isOpen, "Bomb"), display = "NotVisible")
       case EmptyCell(_isFlagged, _isOpen, _) => VisibleCell(cellType = maybeVisible(_isOpen, "Empty"), display = "NotVisible")
       case BombAdjacent(_isFlagged, _isOpen, _, bombsTouching) => VisibleCell(cellType = maybeVisible(_isOpen, "Adjacent"), display = {
         maybeVisible(_isOpen, s"${bombsTouching}")
       })
-    }), GameCreation(name, game.rows, game.columns, 0))
+    }), game.rows, if(game.isWin) "You Won" else if (game.isLoose) "You Loose" else "Finish Him")
 }
 

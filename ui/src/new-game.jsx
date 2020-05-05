@@ -1,6 +1,6 @@
 import React, {useState} from 'react';
+import {urlPrefix} from './constants'
 
-const urlPrefix = 'http://localhost:9000'
 
 const Field = ({name,type="number",onChangeValue, state={}})=>(
 <>

@@ -60,7 +60,7 @@ class Game(rowCount: Int, colCount: Int, board: List[Cell]) {
 
   def isWin: Boolean = {
     board.filter(cell => cell match {
-      case Bomb(_, _isOpen, _) => _isOpen
+      case Bomb(_, _isOpen, _) => !_isOpen
       case _ => false
     }).isEmpty
   }

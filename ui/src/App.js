@@ -1,6 +1,7 @@
 import React, {Component} from 'react';
 import {
   BrowserRouter as Router,
+  Switch,
   Route,
 } from 'react-router-dom';
 
@@ -13,9 +14,12 @@ class App extends Component {
   render() {
     return (
       <Router>
-          <Route path="/game" exact component={ExistingGame}/>
+        <Switch>
+          <Route path="/game/:name" exact >
+            <ExistingGame />
+          </Route>
           <Route path="/" exact component={NewGame}/>
-        
+        </Switch>
       </Router>
     );
   }
