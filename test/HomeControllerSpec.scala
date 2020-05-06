@@ -39,7 +39,7 @@ class HomeControllerSpec extends PlaySpec with GuiceOneAppPerTest with Injecting
       status(home) mustBe OK
       contentType(home) mustBe Some("application/json")
       val resultJson = contentAsJson(home)
-      resultJson.toString() mustBe """{"board":[{"cellType":"NotVisible","display":"NotVisible"},{"cellType":"NotVisible","display":"NotVisible"}],"gameConfiguration":{"gameName":"name","rowCount":1,"colCount":2,"bombAmount":0}}"""
+      resultJson.toString() mustBe """{"name":"name","board":[{"cellType":"NotVisible","display":"NotVisible"},{"cellType":"NotVisible","display":"NotVisible"}],"rowCount":1,"gameState":"Finish Him"}"""
     }
     "Be able to open a cell in the game" in {
       val appState = new ApplicationState()
@@ -67,15 +67,5 @@ class HomeControllerSpec extends PlaySpec with GuiceOneAppPerTest with Injecting
       val board = resultJson.as[GameBoard]
       board.board.count(cell=>cell.cellType!="Flagged") >= 1 mustBe(true)
     }
-//
-//    "render the appSummary resource from the router" in {
-//      val request = FakeRequest(GET, "/api/summary")
-//      val home = route(app, request).get
-//
-//      status(home) mustBe OK
-//      contentType(home) mustBe Some("application/json")
-//      val resultJson = contentAsJson(home)
-//      resultJson.toString() mustBe """{"content":"Scala Play React Seed!"}"""
-//    }
   }
 }

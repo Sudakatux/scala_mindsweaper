@@ -1,10 +1,12 @@
 package models
 
-import play.api.libs.json.Json
+import play.api.data.validation.ValidationError
+import play.api.libs.json.{JsPath, Json, JsonValidationError, Reads}
 import services.{Bomb, BombAdjacent, EmptyCell, Game}
 
 
 case class GameCreation(gameName: String, rowCount: Int, colCount: Int, bombAmount: Int)
+
 
 object GameCreation {
   implicit val gameCreationImplicitReads = Json.reads[GameCreation]

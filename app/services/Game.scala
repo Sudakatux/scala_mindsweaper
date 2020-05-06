@@ -33,8 +33,8 @@ case class BombAdjacent(_isFlagged: Boolean, _isOpen: Boolean, cellsArround: Set
 
 class Game(rowCount: Int, colCount: Int, board: List[Cell]) {
   val currentBoard = board
-  val rows:Int = rowCount
-  val columns:Int = colCount
+  val rows: Int = rowCount
+  val columns: Int = colCount
 
   def flagCell(row: Int, col: Int): Game = {
     val idx = Game.index(rowCount, (row, col))
@@ -57,6 +57,7 @@ class Game(rowCount: Int, colCount: Int, board: List[Cell]) {
         case _ => openEmptyCell(unverifiedRest.tail, openedCells, board)
       }
     }
+
     val idx = Game.index(rowCount, (row, col))
     val current = board(idx)
     val boardAfterOpen: List[Cell] = current match {
@@ -77,10 +78,8 @@ class Game(rowCount: Int, colCount: Int, board: List[Cell]) {
       case _ => false
     })
     val openedCells = board.filter(_.isOpen)
-    closedBombs.size > 0 && (closedBombs.size  + openedCells.size == board.size)
+    closedBombs.size > 0 && (closedBombs.size + openedCells.size == board.size)
   }
-
-
 
 
 }
@@ -101,6 +100,12 @@ object Game {
     col * rowCount + row
   }
 
+  /**
+   * Given a board size and a bomb count will return a set of random indexes to deploy bombs
+   * @param bombCount
+   * @param boardSize
+   * @return
+   */
   def randomBombPositionsInGrid(bombCount: Int, boardSize: Int): Set[Int] = { // services.Bomb position
     @tailrec
     def placeBombs(placedBombs: Set[Int]): Set[Int] = {
@@ -114,6 +119,14 @@ object Game {
     placeBombs(Set())
   }
 
+  /**
+   * Takes a board size a row count and a position. will return a set containing the indexes
+   * of all adjacents
+   * @param boardSize
+   * @param rowCount
+   * @param position
+   * @return
+   */
   def adjacentsForPosition(boardSize: Int, rowCount: Int, position: Position): Set[Int] = {
     val (row, col) = position
     val possibleCandidates = for (col <- Set(col, col + 1, col - 1);
@@ -126,6 +139,14 @@ object Game {
     candidatesWithoutSelf.map(index(rowCount, _)).filter(existsInBoard)
   }
 
+  /**
+   * takes a board size a count. and a list of bombIndex
+   * returns a Set of all cells that are bomb adjacents but are not bombs
+   * @param boardSize board size
+   * @param rowCount amount of rows
+   * @param bombIdx list of located bombs
+   * @return
+   */
   def bombAdjacentByBombsNotBombs(boardSize: Int, rowCount: Int, bombIdx: Set[Int]): Map[Int, Set[Int]] = {
     val bombAdjacentsByBomb: Map[Int, Set[Int]] = bombIdx
       .map(bIdx => Tuple2(bIdx, adjacentsForPosition(boardSize, rowCount, position(rowCount, bIdx))))
@@ -137,6 +158,13 @@ object Game {
 
   }
 
+  /**
+   * Initializes a board with no plays
+   * @param rowCount
+   * @param colCount
+   * @param bombCount
+   * @return
+   */
   def initBoard(rowCount: Int, colCount: Int, bombCount: Int): List[Cell] = {
     val boardSize = rowCount * colCount
     val bombIdxPositions = randomBombPositionsInGrid(bombCount, boardSize)

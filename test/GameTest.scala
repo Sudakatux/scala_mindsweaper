@@ -3,6 +3,7 @@ package services
 import org.scalatestplus.play.PlaySpec
 
 class GameTest extends PlaySpec{
+
 "services.Game " should {
     /*
     0 3 6 9
