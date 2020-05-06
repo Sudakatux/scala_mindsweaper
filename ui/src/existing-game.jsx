@@ -44,10 +44,9 @@ export const ExistingGame = ()=>{
     },[name]);
 
     const {board=[],rowCount=1} = state;
-    console.log('This is the state',state);
     
     if(isEmpty(board)){
-        return <div>Loading...</div>;
+        return <div>Loading the best game ever...</div>;
     }
     
     const partitionByRowCount = splitEvery(rowCount,board);

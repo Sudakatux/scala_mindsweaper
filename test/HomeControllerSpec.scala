@@ -19,7 +19,6 @@ class HomeControllerSpec extends PlaySpec with GuiceOneAppPerTest with Injecting
   "HomeController" should {
 
     "Be able to create a game given a configuration. and get the configuration back" in {
-      val controller = new HomeController(stubControllerComponents(), new ApplicationState())
       val mockGameCreation = GameCreation("someName",4,12,3)
       val jsonRequest  = Json.toJson(mockGameCreation)
       val home = FakeRequest(POST, "/api/game").withJsonBody(jsonRequest)
@@ -54,7 +53,19 @@ class HomeControllerSpec extends PlaySpec with GuiceOneAppPerTest with Injecting
       val resultJson = contentAsJson(home)
       val board = resultJson.as[GameBoard]
       board.board.count(cell=>cell.cellType!="NotVisible") >= 1 mustBe(true)
+    }
+    "Be able to flag a cell in the game" in {
+      val appState = new ApplicationState()
+      val gameName = "name"
+      appState.updateGame(gameName,Game(1,2,1))
+      val controller = new HomeController(stubControllerComponents(), appState)
+      val home = controller.flagCel(gameName,0,0).apply(FakeRequest(GET,gameName))
 
+      status(home) mustBe OK
+      contentType(home) mustBe Some("application/json")
+      val resultJson = contentAsJson(home)
+      val board = resultJson.as[GameBoard]
+      board.board.count(cell=>cell.cellType!="Flagged") >= 1 mustBe(true)
     }
 //
 //    "render the appSummary resource from the router" in {

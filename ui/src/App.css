@@ -26,6 +26,10 @@
   display: flex;
 } 
 
+.form-label{
+  text-transform: capitalize;
+}
+
 .cell {
   border:1px solid;
   width:3rem;
@@ -34,10 +38,10 @@
 }
 
 .empty-cell{
-  background-color: #282c34;
+  background-color: #c6c8cc;
 }
 .adjacent-cell{
-  background-color:white;
+  background-color:#61dafb;
 }
 .unknown-cell {
   background-color:grey;

@@ -23,16 +23,16 @@ object GameBoard {
   implicit val gameBoardImplicitReads = Json.reads[GameBoard]
   implicit val gameBoardImplicitWrites = Json.writes[GameBoard]
 
-  def maybeVisible(isOpen: Boolean, cellType: String): String = {
-    if (isOpen) cellType else "NotVisible"
+  def maybeVisible(isFlagged:Boolean,isOpen: Boolean, cellType: String): String = {
+    if (isOpen) cellType else if (isFlagged) "Flagged" else "NotVisible"
   }
 
   def gameToGameBoard(name:String,game:Game):GameBoard =
     GameBoard(name, game.currentBoard.map(_ match {
-      case Bomb(_isFlagged, _isOpen, _) => VisibleCell(cellType = maybeVisible(_isOpen, "Bomb"), display = "NotVisible")
-      case EmptyCell(_isFlagged, _isOpen, _) => VisibleCell(cellType = maybeVisible(_isOpen, "Empty"), display = "NotVisible")
-      case BombAdjacent(_isFlagged, _isOpen, _, bombsTouching) => VisibleCell(cellType = maybeVisible(_isOpen, "Adjacent"), display = {
-        maybeVisible(_isOpen, s"${bombsTouching}")
+      case Bomb(_isFlagged, _isOpen, _) => VisibleCell(cellType = maybeVisible(_isFlagged,_isOpen, "Bomb"), display = "NotVisible")
+      case EmptyCell(_isFlagged, _isOpen, _) => VisibleCell(cellType = maybeVisible(_isFlagged,_isOpen, "Empty"), display = "NotVisible")
+      case BombAdjacent(_isFlagged, _isOpen, _, bombsTouching) => VisibleCell(cellType = maybeVisible(_isFlagged, _isOpen, "Adjacent"), display = {
+        maybeVisible(_isFlagged, _isOpen, s"${bombsTouching}")
       })
     }), game.rows, if(game.isWin) "You Won" else if (game.isLoose) "You Loose" else "Finish Him")
 }

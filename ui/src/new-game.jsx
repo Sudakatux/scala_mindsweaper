@@ -1,33 +1,41 @@
 import React, {useState} from 'react';
-import {urlPrefix} from './constants'
+import { Redirect } from 'react-router-dom';
+
+import {createGame} from './api';
 
 
 const Field = ({name,type="number",onChangeValue, state={}})=>(
 <>
-<label>{name}</label>
-<input type={type} name={name} onChange={onChangeValue(type,name)} value={state[name]}/>
+    <label className="form-label">{name.split(/(?=[A-Z])/).join(' ')}</label>
+    <input type={type} name={name} onChange={onChangeValue(type,name)} value={state[name]}/>
 </>)
 
-const onSubmit = async (formState)=>{
-    const response = await fetch(`${urlPrefix}/api/game`,{
-        method:'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(formState)
-    });
-    console.log('Creation succesfull',response.json())
-}
+
 
 export const NewGame = ()=>{
     const [state,setState] = useState({
         gameName:'',
-        rowCount:4,
-        colCount:3,
-        bombAmount:1
+        rowCount: 4,
+        colCount: 3,
+        bombAmount: 1,
+        created: false,
     })
 
-    const onChangeValue = (type,fieldKey)=> ({target:{value}}) => setState({...state,[fieldKey]: type==='number' ? parseInt(value) : value})
+    const onChangeValue = (type, fieldKey)=>
+        ({target:{value}}) => 
+        setState({...state,[fieldKey]: type==='number' ? parseInt(value) : value})
+    
+    const onSubmit = () => {
+        const submitValue = async ()=>{
+            const gameCreated = createGame(state);
+            setState({ ...state, created:true});
+        }
+        submitValue();
+    }
+
+    if(state.created) {
+        return (<Redirect to={`/game/${state.gameName}`}/>)
+    }
     
     return (
     <div className="container">
@@ -44,7 +52,7 @@ export const NewGame = ()=>{
             <Field name="bombAmount" onChangeValue={onChangeValue}/>
         </div>
         <div>
-            <button onClick={()=>onSubmit(state)}>Create Game</button>
+            <button onClick={onSubmit}>Create Game</button>
         </div>
     </div>
 )}

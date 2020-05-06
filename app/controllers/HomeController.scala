@@ -30,7 +30,7 @@ class HomeController @Inject()(cc: ControllerComponents, state: ApplicationState
   def gameByName(name: String) = Action(parse.json) {
     val maybeGame = state.games.get(name)
 
-    maybeGame.map(game => GameBoard.gameToGameBoard(name,game)) // TODO remove the bomb count
+    maybeGame.map(game => GameBoard.gameToGameBoard(name,game))
       .map(game => Ok(Json.toJson(game)).as("application/json"))
       .getOrElse(NotFound(Json.obj("message" -> "Game was not found")).as("application/json"))
   }
@@ -38,7 +38,15 @@ class HomeController @Inject()(cc: ControllerComponents, state: ApplicationState
   def openCel(name:String, row:Int, col:Int) = Action(parse.json) {
     val maybeGamePlay = state.games.get(name).map(game=> game.openCell(row,col))
 
-    maybeGamePlay.map(game => GameBoard.gameToGameBoard(name,state.updateGame(name,game))) // TODO remove the bomb count
+    maybeGamePlay.map(game => GameBoard.gameToGameBoard(name,state.updateGame(name,game)))
+      .map(game => Ok(Json.toJson(game)).as("application/json"))
+      .getOrElse(NotFound(Json.obj("message" -> "Game was not found")).as("application/json"))
+  }
+
+  def flagCel(name:String, row:Int, col:Int) = Action(parse.json) {
+    val maybeGamePlay = state.games.get(name).map(game=> game.flagCell(row,col))
+
+    maybeGamePlay.map(game => GameBoard.gameToGameBoard(name,state.updateGame(name,game)))
       .map(game => Ok(Json.toJson(game)).as("application/json"))
       .getOrElse(NotFound(Json.obj("message" -> "Game was not found")).as("application/json"))
   }

@@ -44,6 +44,19 @@ class Game(rowCount: Int, colCount: Int, board: List[Cell]) {
   }
 
   def openCell(row: Int, col: Int): Game = {
+    @tailrec
+    def openEmptyCell(cellsToOpen: Set[Int], openedCells: Set[Int], board: List[Cell]): List[Cell] = {
+      val unverifiedRest = cellsToOpen -- openedCells
+      if (unverifiedRest.isEmpty) return board
+      val currentIdx = unverifiedRest.head
+      val current = board(currentIdx)
+
+      current match {
+        case EmptyCell(_, _, cellsArround) => openEmptyCell(cellsArround ++ unverifiedRest.tail, openedCells + currentIdx, board.patch(currentIdx, Seq(current.open()), 1))
+        case BombAdjacent(_, _, _, _) => openEmptyCell(unverifiedRest.tail, openedCells + currentIdx, board.patch(currentIdx, Seq(current.open()), 1))
+        case _ => openEmptyCell(unverifiedRest.tail, openedCells, board)
+      }
+    }
     val idx = Game.index(rowCount, (row, col))
     val current = board(idx)
     val boardAfterOpen: List[Cell] = current match {
@@ -59,24 +72,15 @@ class Game(rowCount: Int, colCount: Int, board: List[Cell]) {
   }
 
   def isWin: Boolean = {
-    board.filter(cell => cell match {
+    val closedBombs = board.filter(cell => cell match {
       case Bomb(_, _isOpen, _) => !_isOpen
       case _ => false
-    }).isEmpty
+    })
+    val openedCells = board.filter(_.isOpen)
+    closedBombs.size + openedCells.size == board.size
   }
 
-  private def openEmptyCell(cellsToOpen: Set[Int], openedCells: Set[Int], board: List[Cell]): List[Cell] = {
-    val unverifiedRest = cellsToOpen -- openedCells
-    if (unverifiedRest.isEmpty) return board
-    val currentIdx = unverifiedRest.head
-    val current = board(currentIdx)
 
-    current match {
-      case EmptyCell(_, _, cellsArround) => openEmptyCell(cellsArround ++ unverifiedRest.tail, openedCells + currentIdx, board.patch(currentIdx, Seq(current.open()), 1))
-      case BombAdjacent(_, _, _, _) => openEmptyCell(unverifiedRest.tail, openedCells + currentIdx, board.patch(currentIdx, Seq(current.open()), 1))
-      case _ => openEmptyCell(unverifiedRest.tail, openedCells, board)
-    }
-  }
 
 
 }
