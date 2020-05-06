@@ -77,7 +77,7 @@ class Game(rowCount: Int, colCount: Int, board: List[Cell]) {
       case _ => false
     })
     val openedCells = board.filter(_.isOpen)
-    closedBombs.size + openedCells.size == board.size
+    closedBombs.size > 0 && (closedBombs.size  + openedCells.size == board.size)
   }
 
 

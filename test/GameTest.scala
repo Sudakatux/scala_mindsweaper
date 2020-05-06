@@ -159,5 +159,21 @@ class GameTest extends PlaySpec{
     new Game(rowSize,colSize,board).isLoose mustBe(false)
 
   }
+  "Tell if the game has been lost" in {
+    val rowSize = 3
+    val colSize = 2
+    val board = List(
+      Bomb(false,true,Set(1,3,4)), //0,0
+      BombAdjacent(false,true,Set(0,2,3,4,5),1),//1,0
+      EmptyCell(false,true,Set(1,5)),//2,0
+      BombAdjacent(false,true,Set(0,1,4),1),
+      BombAdjacent(false,true,Set(0,1,2,3,5),1),
+      EmptyCell(false,true,Set(1,2,4))
+    )
+
+    new Game(rowSize,colSize,board).isWin mustBe(false)
+    new Game(rowSize,colSize,board).isLoose mustBe(true)
+
+  }
 }
 }

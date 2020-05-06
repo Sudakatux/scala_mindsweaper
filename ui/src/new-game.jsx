@@ -27,7 +27,7 @@ export const NewGame = ()=>{
     
     const onSubmit = () => {
         const submitValue = async ()=>{
-            const gameCreated = createGame(state);
+            await createGame(state);
             setState({ ...state, created:true});
         }
         submitValue();
@@ -38,17 +38,17 @@ export const NewGame = ()=>{
     }
     
     return (
-    <div className="container">
-        <div className="item">
+    <div className="form-container">
+        <div className="form-item">
             <Field name="gameName" type="text" onChangeValue={onChangeValue}/>
         </div>
-        <div className="item">
+        <div className="form-item">
             <Field name="rowCount" onChangeValue={onChangeValue}/>
         </div>
-        <div className="item">
+        <div className="form-item">
             <Field name="colCount" onChangeValue={onChangeValue}/>
         </div>
-        <div className="item">
+        <div className="form-item">
             <Field name="bombAmount" onChangeValue={onChangeValue}/>
         </div>
         <div>

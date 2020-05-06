@@ -1,7 +1,7 @@
 import React,{useEffect,useState} from 'react';
 import { useParams } from 'react-router-dom';
 import {splitEvery, isEmpty} from 'ramda'
-import {urlPrefix} from './constants'
+import {fetchForGame, touchACell} from './api'
 
 const EmptyCell = () => (<div className="cell empty-cell"/>)
 const AdjacentCell = ({amount}) => (<div className="cell adjacent-cell">{amount}</div>)
@@ -26,11 +26,10 @@ const colManager = (playCell) => (row,colIdx) =>(
     </div>
 )
 
-const fetchForGame =  (name) => fetch(`${urlPrefix}/api/game/${name}`).then(response=>response.json())
+
 const playOnCellEffect = (name,stateUpdateEffect) => 
-                        (row,col) => fetch(`${urlPrefix}/api/game/${name}/open?row=${row}&col=${col}`)
-                        .then(response=>response.json())
-                        .then(json=>stateUpdateEffect(json))
+                        (row,col) => 
+                            touchACell(name,row,col).then(json => stateUpdateEffect(json))
 
 export const ExistingGame = ()=>{
     const {name} = useParams();
@@ -43,7 +42,7 @@ export const ExistingGame = ()=>{
         fetchData();
     },[name]);
 
-    const {board=[],rowCount=1} = state;
+    const { board=[], rowCount=1, gameState } = state;
     
     if(isEmpty(board)){
         return <div>Loading the best game ever...</div>;
@@ -53,7 +52,12 @@ export const ExistingGame = ()=>{
     const renderCol = colManager(playOnCellEffect(name,setState));
     
     return (
-    <div className="game-container">
-      {partitionByRowCount.map(renderCol)}
-    </div>)
+     <div className="game-container">
+         <div><h2>{name}</h2></div>
+        <div>{gameState}</div>
+        <div className="board-container">
+            {partitionByRowCount.map(renderCol)}
+        </div>
+    </div>
+    )
 }
