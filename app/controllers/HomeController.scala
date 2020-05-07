@@ -11,6 +11,7 @@ class HomeController @Inject()(cc: ControllerComponents, state: ApplicationState
 
   def createGame() = Action(parse.json) { request: Request[JsValue] =>
     val gameCreation = request.body.validate[GameCreation]
+    println("it gets here")
     gameCreation.fold(
       errors => {
         BadRequest(Json.obj("status" -> "error"))

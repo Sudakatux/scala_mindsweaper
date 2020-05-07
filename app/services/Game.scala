@@ -133,9 +133,15 @@ object Game {
                                   row <- Set(row, row + 1, row - 1))
       yield (row, col)
 
+    val colCount = boardSize/rowCount
     def existsInBoard: (Int) => Boolean = (idx: Int) => (idx < boardSize && idx >= 0)
+    def positionIsWithinMargins: Position => Boolean = (pos)=>   (pos._1 >= 0 && pos._2 >= 0) && (pos._1<(rowCount) && pos._2 <= (colCount))
 
-    val candidatesWithoutSelf = possibleCandidates.filter(_ != position).filter((pos) => (pos._1 >= 0 && pos._2 >= 0))
+    val candidatesWithoutSelf = possibleCandidates.toSeq
+      .filter(_ != position)
+      .filter(positionIsWithinMargins)
+      .toSet
+
     candidatesWithoutSelf.map(index(rowCount, _)).filter(existsInBoard)
   }
 
@@ -151,7 +157,6 @@ object Game {
     val bombAdjacentsByBomb: Map[Int, Set[Int]] = bombIdx
       .map(bIdx => Tuple2(bIdx, adjacentsForPosition(boardSize, rowCount, position(rowCount, bIdx))))
       .toMap
-
     def notABomb = (adjacentIdx: Int) => !bombIdx.contains(adjacentIdx)
 
     bombAdjacentsByBomb.mapValues(_.filter(notABomb))

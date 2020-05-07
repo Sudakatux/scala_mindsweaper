@@ -4,8 +4,10 @@ import models.{GameBoard, GameCreation}
 import org.scalatestplus.play._
 import org.scalatestplus.play.guice._
 import play.api.libs.json.Json
+import play.api.mvc.Headers
 import play.api.test._
 import play.api.test.Helpers._
+import play.mvc.Http
 import services.{ApplicationState, Game}
 
 /**
@@ -19,9 +21,12 @@ class HomeControllerSpec extends PlaySpec with GuiceOneAppPerTest with Injecting
   "HomeController" should {
 
     "Be able to create a game given a configuration. and get the configuration back" in {
+      val appState = new ApplicationState()
+      val controller = new HomeController(stubControllerComponents(), appState)
       val mockGameCreation = GameCreation("someName",4,12,3)
       val jsonRequest  = Json.toJson(mockGameCreation)
-      val home = FakeRequest(POST, "/api/game").withJsonBody(jsonRequest)
+      val home = FakeRequest(POST, "/api/game")
+        .withJsonBody(jsonRequest)
       val result = route(app,home).get
 
       status(result) mustBe OK

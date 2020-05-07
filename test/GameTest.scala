@@ -60,6 +60,15 @@ class GameTest extends PlaySpec{
     result1.filter(rIdx=>rIdx >=0 && rIdx<boardSize).size mustBe vertexMaxAdjacents
     result1.equals(Set(3,4,1)) mustBe true
   }
+  "returns correct adjacent for fields in margin" in {
+    val rowSize = 4
+    val colSize = 4
+    val boardSize = rowSize*colSize
+    val result2 = Game.adjacentsForPosition(boardSize,rowSize,(3,0))
+
+    result2 mustBe Set(6, 2, 7)
+  }
+
   "returns bomb adjacents for bombs that are not bombs" in {
     val rowSize = 3
     val colSize = 4
@@ -67,12 +76,14 @@ class GameTest extends PlaySpec{
 
     val fakeBomb = Set(4)
     val result = Game.bombAdjacentByBombsNotBombs(boardSize,rowSize,fakeBomb)
-    println(s" Result is ${result}")
     result.values.flatten.size mustBe maxPossibleAdjacents
 
     val fakeBombs = Set(4,7)
     val result1 = Game.bombAdjacentByBombsNotBombs(boardSize,rowSize,fakeBombs)
     result1.get(4).get.size mustBe (maxPossibleAdjacents-1) // Has a bomb next to it should filter that bomb
+
+
+    //result1.get(4).get.size mustBe (maxPossibleAdjacents-1) // Has a bomb next to it should filter that bomb
   }
   "generates a board with bombs adjacents and empty" in {
     val rowSize = 3
