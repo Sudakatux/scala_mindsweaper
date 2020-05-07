@@ -1,12 +1,13 @@
 import React,{useEffect,useState} from 'react';
 import { useParams } from 'react-router-dom';
 import {splitEvery, isEmpty} from 'ramda'
-import {fetchForGame, touchACell} from './api'
+import {fetchForGame, touchACell, flagACell} from './api'
 
 const EmptyCell = () => (<div className="cell empty-cell"/>)
 const AdjacentCell = ({amount}) => (<div className="cell adjacent-cell">{amount}</div>)
 const UnknownCell = ({onClick}) => (<div onClick={onClick} className="cell unknown-cell"/>)
 const Bomb = ({onClick}) => (<div onClick={onClick} className="cell bomb-cell"/>)
+const Flagged = ({onClick}) => (<div onClick={onClick} className="cell flag-cell"/>)
 
 const colManager = (playCell) => (row,colIdx) =>(
     <div className="game-row">
@@ -18,8 +19,10 @@ const colManager = (playCell) => (row,colIdx) =>(
                   return <AdjacentCell key={`${colIdx}_${rowIdx}`} amount={display}/>
                 case 'Bomb':
                   return <Bomb key={`${colIdx}_${rowIdx}`} />
+                case 'Flagged':
+                  return <Flagged key={`${colIdx}_${rowIdx}`} />
                 default:
-                  return <UnknownCell onClick={()=>playCell(rowIdx,colIdx)} />;
+                  return <UnknownCell onClick={playCell(rowIdx,colIdx)} />;
             }
             }
         )}
@@ -27,11 +30,16 @@ const colManager = (playCell) => (row,colIdx) =>(
 )
 
 
-const playOnCellEffect = (name,stateUpdateEffect) => 
+const playOnCellEffect = (name, stateUpdateEffect) => 
                         (row,col) => 
-                            touchACell(name,row,col).then(json => stateUpdateEffect(json))
+                        (event) => {
+                            event.stopPropagation();
+                            const action = event.metaKey ? flagACell : touchACell
+                            action(name,row,col).then(json => stateUpdateEffect(json))
+                        }
+                        
 
-export const ExistingGame = ()=>{
+export const ExistingGame = () => {
     const {name} = useParams();
     const [state,setState] = useState({board:[],rowCount:0,name:'',gameState:''});
     useEffect(() => {

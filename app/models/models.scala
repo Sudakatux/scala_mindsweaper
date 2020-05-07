@@ -20,7 +20,7 @@ object VisibleCell {
 }
 
 
-case class GameBoard(name:String, board:List[VisibleCell],rowCount:Int, gameState:String)
+case class GameBoard(name:String, board:List[VisibleCell],rowCount:Int, bombCount:Int, gameState:String)
 object GameBoard {
   implicit val gameBoardImplicitReads = Json.reads[GameBoard]
   implicit val gameBoardImplicitWrites = Json.writes[GameBoard]
@@ -36,6 +36,6 @@ object GameBoard {
       case BombAdjacent(_isFlagged, _isOpen, _, bombsTouching) => VisibleCell(cellType = maybeVisible(_isFlagged, _isOpen, "Adjacent"), display = {
         maybeVisible(_isFlagged, _isOpen, s"${bombsTouching}")
       })
-    }), game.rows, if(game.isWin) "You Won" else if (game.isLoose) "You Loose" else "Finish Him")
+    }), game.rows, game.bombs, if(game.isWin) "You Won" else if (game.isLoose) "You Loose" else "Finish Him")
 }
 

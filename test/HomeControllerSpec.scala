@@ -43,7 +43,7 @@ class HomeControllerSpec extends PlaySpec with GuiceOneAppPerTest with Injecting
       status(home) mustBe OK
       contentType(home) mustBe Some("application/json")
       val resultJson = contentAsJson(home)
-      resultJson.toString() mustBe """{"name":"name","board":[{"cellType":"NotVisible","display":"NotVisible"},{"cellType":"NotVisible","display":"NotVisible"}],"rowCount":1,"gameState":"Finish Him"}"""
+      resultJson.toString() mustBe """{"name":"name","board":[{"cellType":"NotVisible","display":"NotVisible"},{"cellType":"NotVisible","display":"NotVisible"}],"rowCount":1,"bombCount":1,"gameState":"Finish Him"}"""
     }
 
     "Be able to open a cell in the game" in {

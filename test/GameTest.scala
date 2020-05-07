@@ -108,7 +108,7 @@ class GameTest extends PlaySpec{
     val colSize = 4
     val bombCount = 1
 
-    new Game(rowSize,colSize,List.tabulate(4*3)(_=>BombAdjacent(false,false,Set(),2))).openCell(0,0).currentBoard.filter(_.isOpen).size mustBe(1)
+    new Game(rowSize,colSize,bombCount,List.tabulate(4*3)(_=>BombAdjacent(false,false,Set(),2))).openCell(0,0).currentBoard.filter(_.isOpen).size mustBe(1)
   }
   "open an empty cell in the game" in {
     val rowSize = 3
@@ -122,7 +122,7 @@ class GameTest extends PlaySpec{
       EmptyCell(false,false,Set(1,2,4))
     )
 
-    new Game(rowSize,colSize,board)
+    new Game(rowSize,colSize,1,board)
       .openCell(2,0).currentBoard.filter(_.isOpen).size mustBe(4)
   }
   "open an adjacent cell" in {
@@ -137,9 +137,10 @@ class GameTest extends PlaySpec{
       EmptyCell(false,false,Set(1,2,4))
     )
 
-    new Game(rowSize,colSize,board)
+    new Game(rowSize,colSize,1,board)
       .openCell(1,0).currentBoard.filter(_.isOpen).size mustBe(1)
   }
+
   "open a bomb" in {
     val rowSize = 3
     val colSize = 2
@@ -152,9 +153,40 @@ class GameTest extends PlaySpec{
       EmptyCell(false,false,Set(1,2,4))
     )
 
-    new Game(rowSize,colSize,board)
+    new Game(rowSize,colSize,1, board)
       .openCell(0,0).currentBoard.filter(_.isOpen).size mustBe(board.size)
   }
+  "open an empty cell in the game when flagged is prsent" in {
+    val rowSize = 3
+    val colSize = 2
+    val board = List(
+      Bomb(false,false,Set(1,3,4)), //0,0
+      BombAdjacent(true,false,Set(0,2,3,4,5),1),//1,0
+      EmptyCell(false,false,Set(1,5)),//2,0
+      BombAdjacent(false,false,Set(0,1,4),1),
+      BombAdjacent(false,false,Set(0,1,2,3,5),1),
+      EmptyCell(false,false,Set(1,2,4))
+    )
+
+    new Game(rowSize,colSize,1,board)
+      .openCell(2,0).currentBoard.filter(_.isOpen).size mustBe(4-1) // should not open the flagged cell
+  }
+  "open a flagged cell should do nothing" in {
+    val rowSize = 3
+    val colSize = 2
+    val board = List(
+      Bomb(false,false,Set(1,3,4)), //0,0
+      BombAdjacent(true,false,Set(0,2,3,4,5),1),//1,0
+      EmptyCell(false,false,Set(1,5)),//2,0
+      BombAdjacent(false,false,Set(0,1,4),1),
+      BombAdjacent(false,false,Set(0,1,2,3,5),1),
+      EmptyCell(false,false,Set(1,2,4))
+    )
+
+    new Game(rowSize,colSize,1,board)
+      .openCell(1,0).currentBoard mustBe board// should not open the flagged cell
+  }
+
   "Tell if the game has been won" in {
     val rowSize = 3
     val colSize = 2
@@ -167,8 +199,8 @@ class GameTest extends PlaySpec{
       EmptyCell(false,true,Set(1,2,4))
     )
 
-    new Game(rowSize,colSize,board).isWin mustBe(true)
-    new Game(rowSize,colSize,board).isLoose mustBe(false)
+    new Game(rowSize,colSize,1,board).isWin mustBe(true)
+    new Game(rowSize,colSize,1,board).isLoose mustBe(false)
 
   }
   "Tell if the game has been lost" in {
@@ -183,8 +215,8 @@ class GameTest extends PlaySpec{
       EmptyCell(false,true,Set(1,2,4))
     )
 
-    new Game(rowSize,colSize,board).isWin mustBe(false)
-    new Game(rowSize,colSize,board).isLoose mustBe(true)
+    new Game(rowSize,colSize,1,board).isWin mustBe(false)
+    new Game(rowSize,colSize,1,board).isLoose mustBe(true)
 
   }
 }
