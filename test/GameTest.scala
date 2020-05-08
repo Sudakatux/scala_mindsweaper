@@ -101,7 +101,7 @@ class GameTest extends PlaySpec{
     val colSize = 4
     val bombCount = 1
 
-    Game(rowSize,colSize,bombCount).flagCell(0,0).currentBoard.count(cell=>cell.isFlagged) mustBe 1
+    Game(rowSize,colSize,bombCount,"SomeName").flagCell(0,0).currentBoard.count(cell=>cell.isFlagged) mustBe 1
   }
   "open an cell in the game" in {
     val rowSize = 3

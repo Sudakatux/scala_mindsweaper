@@ -1,0 +1,9 @@
+version: '2'
+services:
+  postgresql:
+    image: postgres:10.4
+    environment:
+      - POSTGRES_USER=jimmy
+      - POSTGRES_PASSWORD=
+    ports:
+      - 5432:5432

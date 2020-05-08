@@ -31,17 +31,18 @@ case class BombAdjacent(_isFlagged: Boolean, _isOpen: Boolean, cellsArround: Set
   override def toggleFlag(): Cell = BombAdjacent(!_isFlagged, _isOpen, cellsArround, bombsTouching)
 }
 
-class Game(rowCount: Int, colCount: Int, bombCount:Int, board: List[Cell]) {
+class Game(rowCount: Int, colCount: Int, bombCount:Int, board: List[Cell],_name:String = "SomeGame") {
   val currentBoard = board
   val rows: Int = rowCount
   val columns: Int = colCount
   val bombs: Int = bombCount
+  val name:String = _name
 
   def flagCell(row: Int, col: Int): Game = {
     val idx = Game.index(rowCount, (row, col))
     val current = board(idx)
     val updatedBoard: List[Cell] = board.patch(idx, Seq(current.toggleFlag()), 1)
-    new Game(rowCount, colCount, bombCount, updatedBoard)
+    new Game(rowCount, colCount, bombCount, updatedBoard, _name)
   }
 
   def openCell(row: Int, col: Int): Game = {
@@ -69,7 +70,7 @@ class Game(rowCount: Int, colCount: Int, bombCount:Int, board: List[Cell]) {
       case EmptyCell(_, _, cellsArround) => openEmptyCell(cellsArround, Set(), board.patch(idx, Seq(current.open()), 1))
       case _ => board.patch(idx, Seq(current.open()), 1)
     }
-    new Game(rowCount, colCount, bombCount, boardAfterOpen)
+    new Game(rowCount, colCount, bombCount, boardAfterOpen, _name)
   }
 
   def isLoose: Boolean = {
@@ -89,7 +90,7 @@ class Game(rowCount: Int, colCount: Int, bombCount:Int, board: List[Cell]) {
 }
 
 object Game {
-  def apply(rowCount: Int, colCount: Int, bombAmount: Int): Game = new Game(rowCount, colCount, bombAmount, initBoard(rowCount, colCount, bombAmount))
+  def apply(rowCount: Int, colCount: Int, bombAmount: Int, name: String): Game = new Game(rowCount, colCount, bombAmount, initBoard(rowCount, colCount, bombAmount), name)
 
   type Position = (Int, Int) // row, column
 

@@ -1,6 +1,7 @@
 import React, {useState} from 'react';
 import { Redirect } from 'react-router-dom';
-
+import {isNil,isEmpty} from 'ramda';
+import mind from './images/mind.svg';
 import {createGame} from './api';
 
 
@@ -19,26 +20,32 @@ export const NewGame = ()=>{
         colCount: 3,
         bombAmount: 1,
         created: false,
+        status:'',
     })
 
     const onChangeValue = (type, fieldKey)=>
         ({target:{value}}) => 
         setState({...state,[fieldKey]: type==='number' ? parseInt(value) : value})
     
-    const onSubmit = () => {
-        const submitValue = async ()=>{
-            await createGame(state);
-            setState({ ...state, created:true});
-        }
-        submitValue();
-    }
+    const onSubmit = () => createGame(state)
+    .then(({status})=>
+        isNil(status)?{...state,created:true}:{...state,status})
+    .then(setState)
+     
+
 
     if(state.created) {
         return (<Redirect to={`/game/${state.gameName}`}/>)
     }
+
+    const errorExists = !isEmpty(state.status)
     
     return (
     <div className="form-container">
+        <div>
+            <img width={400} height={400} src={mind} alt="mind-logo"/>
+        </div>
+        {errorExists && <div className="error">{state.status}</div>}
         <div className="form-item">
             <Field name="gameName" type="text" onChangeValue={onChangeValue}/>
         </div>

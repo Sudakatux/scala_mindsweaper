@@ -20,7 +20,7 @@ const colManager = (playCell) => (row,colIdx) =>(
                 case 'Bomb':
                   return <Bomb key={`${colIdx}_${rowIdx}`} />
                 case 'Flagged':
-                  return <Flagged key={`${colIdx}_${rowIdx}`} />
+                  return <Flagged key={`${colIdx}_${rowIdx}`} onClick={playCell(rowIdx,colIdx)} />
                 default:
                   return <UnknownCell onClick={playCell(rowIdx,colIdx)} />;
             }
