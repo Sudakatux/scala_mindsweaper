@@ -42,10 +42,7 @@ class HomeController @Inject()(cc: ControllerComponents, gameRepository: GameRep
     )
   }
 
-  def games() = Action(parse.json) {
-    //val games = state.games.keys.toList
-    Ok(Json.obj("games" -> List[String]()))
-  }
+
 
   /**
    * takes a name and returns the game
